@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     initCurrentPosition();
     //getPermission();
+    //getCurrentPosition();
   }
 
   getPermission() async {
@@ -58,6 +59,18 @@ class _HomePageState extends State<HomePage> {
     _googleMapController.animateCamera(_cameraUpdate);
   }
 
+  getCurrentPosition(){
+    Geolocator.getPositionStream().listen((Position newPosition){
+      CameraUpdate _cameraUpdate = CameraUpdate.newLatLng(
+        LatLng(
+          newPosition.latitude,
+          newPosition.longitude,
+        ),
+      );
+      _googleMapController.animateCamera(_cameraUpdate);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,6 +93,7 @@ class _HomePageState extends State<HomePage> {
                   onMapCreated: (GoogleMapController controller) {
                     controller.setMapStyle(jsonEncode(mapStyle));
                     _googleMapController = controller;
+                    getCurrentPosition();
                   },
                   // con .toSet() converie los marcadores
                   // con values solo adquiero los valores del mapa
@@ -121,8 +135,8 @@ class _HomePageState extends State<HomePage> {
                       onPressed: () {
                         moveCamera();
                       },
-                      icon: Icon(Icons.location_on),
-                      label: Text("My Location"),
+                      icon: const Icon(Icons.location_on),
+                      label: const Text("My Location"),
                     ),
                   ),
                 ),
