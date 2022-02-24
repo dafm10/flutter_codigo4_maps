@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   late CameraPosition cameraPosition;
   bool isLoading = true;
+  late GoogleMapController _googleMapController;
 
   @override
   void initState() {
@@ -46,6 +47,17 @@ class _HomePageState extends State<HomePage> {
     return cameraPosition;
   }
 
+  moveCamera() async {
+    Position currentPosition = await Geolocator.getCurrentPosition();
+    CameraUpdate _cameraUpdate = CameraUpdate.newLatLng(
+      LatLng(
+        currentPosition.latitude,
+        currentPosition.longitude,
+      ),
+    );
+    _googleMapController.animateCamera(_cameraUpdate);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,14 +79,16 @@ class _HomePageState extends State<HomePage> {
                   mapType: MapType.normal,
                   onMapCreated: (GoogleMapController controller) {
                     controller.setMapStyle(jsonEncode(mapStyle));
+                    _googleMapController = controller;
                   },
                   // con .toSet() converie los marcadores
                   // con values solo adquiero los valores del mapa
                   markers: _markers.values.toSet(),
                   onTap: (LatLng position) async {
                     final BitmapDescriptor _icon =
-                    await BitmapDescriptor.fromAssetImage(
-                        const ImageConfiguration(), 'assets/icons/fire.png');
+                        await BitmapDescriptor.fromAssetImage(
+                            const ImageConfiguration(),
+                            'assets/icons/fire.png');
                     MarkerId _markerId = MarkerId(_markers.length.toString());
                     // creamos un marcador
                     Marker _marker = Marker(
@@ -99,15 +113,17 @@ class _HomePageState extends State<HomePage> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 12.0, vertical: 10.0),
                     height: 50.0,
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-
+                        moveCamera();
                       },
                       icon: Icon(Icons.location_on),
-                      label: Text("My Location"),),
+                      label: Text("My Location"),
+                    ),
                   ),
                 ),
               ],
