@@ -61,12 +61,38 @@ class _HomePageState extends State<HomePage> {
     _googleMapController.animateCamera(_cameraUpdate);
   }
 
-  getCurrentPosition(){
-    Geolocator.getPositionStream().listen((Position newPosition){
-      LatLng pos = LatLng(newPosition.latitude, newPosition.longitude);
+  getCurrentPosition() async {
+    final iconFire = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(), 'assets/icons/fire.png');
+    final MarkerId markerFireId = MarkerId("marker_fire");
+
+    _polylines.add(
+      Polyline(
+        polylineId: PolylineId("ruta 1"),
+        color: Colors.deepPurpleAccent,
+        width: 7,
+        points: _points,
+      ),
+    );
+
+    Geolocator.getPositionStream().listen((Position newPosition) {
+      LatLng pos = LatLng(
+        newPosition.latitude,
+        newPosition.longitude,
+      );
       _points.add(pos);
       CameraUpdate _cameraUpdate = CameraUpdate.newLatLng(pos);
       _googleMapController.animateCamera(_cameraUpdate);
+
+      final Marker markerFire = Marker(
+        markerId: markerFireId,
+        icon: iconFire,
+        position: pos,
+      );
+
+      _markers[markerFireId] = markerFire;
+
+      setState(() {});
     });
   }
 
@@ -84,7 +110,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 GoogleMap(
                   initialCameraPosition: cameraPosition,
-                  myLocationEnabled: true,
+                  //myLocationEnabled: true,
                   myLocationButtonEnabled: true,
                   compassEnabled: true,
                   mapToolbarEnabled: true,
