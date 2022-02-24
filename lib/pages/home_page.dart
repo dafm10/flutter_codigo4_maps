@@ -24,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   late CameraPosition cameraPosition;
   bool isLoading = true;
   late GoogleMapController _googleMapController;
+  List<LatLng> _points = [];
+  Set<Polyline> _polylines = {};
 
   @override
   void initState() {
@@ -61,12 +63,9 @@ class _HomePageState extends State<HomePage> {
 
   getCurrentPosition(){
     Geolocator.getPositionStream().listen((Position newPosition){
-      CameraUpdate _cameraUpdate = CameraUpdate.newLatLng(
-        LatLng(
-          newPosition.latitude,
-          newPosition.longitude,
-        ),
-      );
+      LatLng pos = LatLng(newPosition.latitude, newPosition.longitude);
+      _points.add(pos);
+      CameraUpdate _cameraUpdate = CameraUpdate.newLatLng(pos);
       _googleMapController.animateCamera(_cameraUpdate);
     });
   }
@@ -98,6 +97,7 @@ class _HomePageState extends State<HomePage> {
                   // con .toSet() converie los marcadores
                   // con values solo adquiero los valores del mapa
                   markers: _markers.values.toSet(),
+                  polylines: _polylines,
                   onTap: (LatLng position) async {
                     final BitmapDescriptor _icon =
                         await BitmapDescriptor.fromAssetImage(
