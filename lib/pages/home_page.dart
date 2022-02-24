@@ -12,7 +12,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   Map<MarkerId, Marker> _markers = {};
 
   CameraPosition cameraPosition = CameraPosition(
@@ -35,27 +34,28 @@ class _HomePageState extends State<HomePage> {
         // con .toSet() converie los marcadores
         // con values solo adquiero los valores del mapa
         markers: _markers.values.toSet(),
-        onTap: (LatLng position){
+        onTap: (LatLng position) async {
+          final BitmapDescriptor _icon = await BitmapDescriptor.fromAssetImage(
+              ImageConfiguration(), 'assets/icons/fire.png');
           MarkerId _markerId = MarkerId(_markers.length.toString());
           // creamos un marcador
           Marker _marker = Marker(
               markerId: _markerId,
-            position: position,
-            //icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-              icon: BitmapDescriptor.defaultMarkerWithHue(200),
-            rotation: -10.0, // rotacuón del marcador
-            draggable: true,
-            onDragEnd: (LatLng newLocation){
+              position: position,
+              //icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+              //icon: BitmapDescriptor.defaultMarkerWithHue(200),
+              icon: _icon,
+              rotation: -10.0,
+              // rotacuón del marcador
+              draggable: true,
+              onDragEnd: (LatLng newLocation) {
                 print(newLocation);
-            },
-            onTap: (){
+              },
+              onTap: () {
                 print("Hola");
-            }
-          );
+              });
           _markers[_markerId] = _marker;
-          setState(() {
-
-          });
+          setState(() {});
         },
       ),
     );
