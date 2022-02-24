@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
           controller.setMapStyle(jsonEncode(mapStyle));
         },
         // con .toSet() converie los marcadores
+        // con values solo adquiero los valores del mapa
         markers: _markers.values.toSet(),
         onTap: (LatLng position){
           MarkerId _markerId = MarkerId(_markers.length.toString());
@@ -40,6 +41,16 @@ class _HomePageState extends State<HomePage> {
           Marker _marker = Marker(
               markerId: _markerId,
             position: position,
+            //icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+              icon: BitmapDescriptor.defaultMarkerWithHue(200),
+            rotation: -10.0, // rotacuón del marcador
+            draggable: true,
+            onDragEnd: (LatLng newLocation){
+                print(newLocation);
+            },
+            onTap: (){
+                print("Hola");
+            }
           );
           _markers[_markerId] = _marker;
           setState(() {
