@@ -37,14 +37,13 @@ class _HomePageState extends State<HomePage> {
     print(status);
   }
 
-  void initCurrentPosition() async {
+  Future<CameraPosition> initCurrentPosition() async {
     Position position = await Geolocator.getCurrentPosition();
     cameraPosition = CameraPosition(
       target: LatLng(position.latitude, position.longitude),
       zoom: 15.0,
     );
-    isLoading = false;
-    setState(() {});
+    return cameraPosition;
   }
 
   @override
@@ -53,39 +52,51 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Google Maps"),
       ),
-      body: !isLoading ? GoogleMap(
-        initialCameraPosition: cameraPosition,
-        mapType: MapType.normal,
-        onMapCreated: (GoogleMapController controller) {
-          controller.setMapStyle(jsonEncode(mapStyle));
-        },
-        // con .toSet() converie los marcadores
-        // con values solo adquiero los valores del mapa
-        markers: _markers.values.toSet(),
-        onTap: (LatLng position) async {
-          final BitmapDescriptor _icon = await BitmapDescriptor.fromAssetImage(
-              const ImageConfiguration(), 'assets/icons/fire.png');
-          MarkerId _markerId = MarkerId(_markers.length.toString());
-          // creamos un marcador
-          Marker _marker = Marker(
-              markerId: _markerId,
-              position: position,
-              //icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-              //icon: BitmapDescriptor.defaultMarkerWithHue(200),
-              icon: _icon,
-              rotation: -10.0,
-              // rotacuón del marcador
-              draggable: true,
-              onDragEnd: (LatLng newLocation) {
-                //print(newLocation);
+      body: FutureBuilder(
+        future: initCurrentPosition(),
+        builder: (BuildContext context, AsyncSnapshot snap){
+          if(snap.hasData){
+            return GoogleMap(
+              initialCameraPosition: cameraPosition,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              compassEnabled: true,
+              mapToolbarEnabled: true,
+              mapType: MapType.normal,
+              onMapCreated: (GoogleMapController controller) {
+                controller.setMapStyle(jsonEncode(mapStyle));
               },
-              onTap: () {
-                //print("Hola");
-              });
-          _markers[_markerId] = _marker;
-          setState(() {});
+              // con .toSet() converie los marcadores
+              // con values solo adquiero los valores del mapa
+              markers: _markers.values.toSet(),
+              onTap: (LatLng position) async {
+                final BitmapDescriptor _icon = await BitmapDescriptor.fromAssetImage(
+                    const ImageConfiguration(), 'assets/icons/fire.png');
+                MarkerId _markerId = MarkerId(_markers.length.toString());
+                // creamos un marcador
+                Marker _marker = Marker(
+                    markerId: _markerId,
+                    position: position,
+                    //icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+                    //icon: BitmapDescriptor.defaultMarkerWithHue(200),
+                    icon: _icon,
+                    rotation: -10.0,
+                    // rotacuón del marcador
+                    draggable: true,
+                    onDragEnd: (LatLng newLocation) {
+                      //print(newLocation);
+                    },
+                    onTap: () {
+                      //print("Hola");
+                    });
+                _markers[_markerId] = _marker;
+                setState(() {});
+              },
+            );
+          }
+          return Center(child: CircularProgressIndicator(),);
         },
-      ) : Center(child: CircularProgressIndicator(),),
+      ),
     );
   }
 }
