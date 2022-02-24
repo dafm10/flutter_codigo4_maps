@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_codigo4_maps/util/map_style.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,10 +16,36 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Map<MarkerId, Marker> _markers = {};
 
-  CameraPosition cameraPosition = CameraPosition(
+  /*CameraPosition cameraPosition = CameraPosition(
     target: LatLng(-8.059236, -79.052545),
     zoom: 15,
-  );
+  );*/
+
+  late CameraPosition cameraPosition;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initCurrentPosition();
+    //getPermission();
+  }
+
+  getPermission() async {
+    PermissionStatus status = await Permission.location.status;
+    print(status);
+  }
+
+  void initCurrentPosition() async {
+    Position position = await Geolocator.getCurrentPosition();
+    cameraPosition = CameraPosition(
+      target: LatLng(position.latitude, position.longitude),
+      zoom: 15.0,
+    );
+    isLoading = false;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +53,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Google Maps"),
       ),
-      body: GoogleMap(
+      body: !isLoading ? GoogleMap(
         initialCameraPosition: cameraPosition,
         mapType: MapType.normal,
         onMapCreated: (GoogleMapController controller) {
@@ -36,7 +64,7 @@ class _HomePageState extends State<HomePage> {
         markers: _markers.values.toSet(),
         onTap: (LatLng position) async {
           final BitmapDescriptor _icon = await BitmapDescriptor.fromAssetImage(
-              ImageConfiguration(), 'assets/icons/fire.png');
+              const ImageConfiguration(), 'assets/icons/fire.png');
           MarkerId _markerId = MarkerId(_markers.length.toString());
           // creamos un marcador
           Marker _marker = Marker(
@@ -49,15 +77,15 @@ class _HomePageState extends State<HomePage> {
               // rotacuón del marcador
               draggable: true,
               onDragEnd: (LatLng newLocation) {
-                print(newLocation);
+                //print(newLocation);
               },
               onTap: () {
-                print("Hola");
+                //print("Hola");
               });
           _markers[_markerId] = _marker;
           setState(() {});
         },
-      ),
+      ) : Center(child: CircularProgressIndicator(),),
     );
   }
 }
