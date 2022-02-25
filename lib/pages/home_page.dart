@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   late GoogleMapController _googleMapController;
   List<LatLng> _points = [];
   Set<Polyline> _polylines = {};
+  Position? _lastPosition;
 
   @override
   void initState() {
@@ -63,12 +64,12 @@ class _HomePageState extends State<HomePage> {
 
   getCurrentPosition() async {
     final iconFire = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(), 'assets/icons/fire.png');
-    final MarkerId markerFireId = MarkerId("marker_fire");
+        const ImageConfiguration(), 'assets/icons/truck.png');
+    const MarkerId markerFireId = MarkerId("marker_fire");
 
     _polylines.add(
       Polyline(
-        polylineId: PolylineId("ruta 1"),
+        polylineId: const PolylineId("ruta 1"),
         color: Colors.deepPurpleAccent,
         width: 7,
         points: _points,
@@ -84,13 +85,26 @@ class _HomePageState extends State<HomePage> {
       CameraUpdate _cameraUpdate = CameraUpdate.newLatLng(pos);
       _googleMapController.animateCamera(_cameraUpdate);
 
+      double rotation = 0;
+
+      if(_lastPosition != null){
+        rotation = Geolocator.bearingBetween(
+          _lastPosition!.latitude,
+          _lastPosition!.longitude,
+          pos.latitude,
+          pos.longitude,
+        );
+      }
+
       final Marker markerFire = Marker(
         markerId: markerFireId,
         icon: iconFire,
         position: pos,
+        rotation: rotation,
       );
 
       _markers[markerFireId] = markerFire;
+      _lastPosition = newPosition;
 
       setState(() {});
     });
@@ -137,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                         //icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
                         //icon: BitmapDescriptor.defaultMarkerWithHue(200),
                         icon: _icon,
-                        rotation: -10.0,
+                        rotation: 0,
                         // rotacuón del marcador
                         draggable: true,
                         onDragEnd: (LatLng newLocation) {
