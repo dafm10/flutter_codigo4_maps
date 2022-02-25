@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_codigo4_maps/pages/home_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AccessPermissionPage extends StatefulWidget {
@@ -9,9 +10,19 @@ class AccessPermissionPage extends StatefulWidget {
 }
 
 class _AccessPermissionPageState extends State<AccessPermissionPage> {
-
-  checkPermission(PermissionStatus status){
-
+  checkPermission(PermissionStatus status) {
+    switch (status) {
+      case PermissionStatus.granted:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const HomePage()));
+        break;
+      case PermissionStatus.denied:
+      case PermissionStatus.permanentlyDenied:
+      case PermissionStatus.limited:
+      case PermissionStatus.restricted:
+        openAppSettings();
+        break;
+    }
   }
 
   @override
