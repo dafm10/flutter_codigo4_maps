@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AccessPermissionPage extends StatefulWidget {
   const AccessPermissionPage({Key? key}) : super(key: key);
@@ -8,6 +9,11 @@ class AccessPermissionPage extends StatefulWidget {
 }
 
 class _AccessPermissionPageState extends State<AccessPermissionPage> {
+
+  checkPermission(PermissionStatus status){
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,8 +25,11 @@ class _AccessPermissionPageState extends State<AccessPermissionPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: (){},
-              child: Text("Activar GPS"),
+              onPressed: () async {
+                PermissionStatus status = await Permission.location.request();
+                checkPermission(status);
+              },
+              child: const Text("Activar GPS"),
             ),
           ],
         ),
